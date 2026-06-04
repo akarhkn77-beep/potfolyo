@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canlı Portföy</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+:root{--bg:#fff;--bg2:#f5f5f4;--bg3:#eeedea;--text:#1a1a1a;--text2:#6b6b6b;--text3:#a0a0a0;--border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.22);--radius:8px;--radius-lg:12px;--up:#1D9E75;--dn:#D85A30}
+@media(prefers-color-scheme:dark){:root{--bg:#1c1c1c;--bg2:#252525;--bg3:#2e2e2e;--text:#f0f0f0;--text2:#a0a0a0;--text3:#555;--border:rgba(255,255,255,0.12);--border2:rgba(255,255,255,0.22)}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);color:var(--text);padding:1.5rem;min-height:100vh}
+.wrap{max-width:980px;margin:0 auto}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:8px}
+.logo{font-size:18px;font-weight:700;display:flex;align-items:center;gap:8px}
+.controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.status{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--up);flex-shrink:0}
+.dot.err{background:#E24B4A}.dot.load{background:#EF9F27}
+button.icon-btn{display:flex;align-items:center;gap:5px;font-size:12px;padding:6px 12px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg);color:var(--text);cursor:pointer}
+button.icon-btn:hover{background:var(--bg2)}
+.info-bar{font-size:10px;color:var(--text3);margin-bottom:14px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.info-tag{background:var(--bg2);border:1px solid var(--border);padding:2px 8px;border-radius:99px;font-size:10px}
+.info-tag.ok{background:#EAF3DE;border-color:#C0DD97;color:#3B6D11}
+.info-tag.err{background:#FCEBEB;border-color:#F7C1C1;color:#A32D2D}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px;margin-bottom:1.25rem}
+.m{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:11px 13px}
+.m-lbl{font-size:10px;color:var(--text2);margin-bottom:3px;font-weight:600;letter-spacing:.03em;text-transform:uppercase}
+.m-val{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
+.m-sub{font-size:11px;margin-top:3px}
+.up{color:var(--up)}.dn{color:var(--dn)}
+.card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem;margin-bottom:1rem}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px}
+.card-ttl{font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px}
+.bdg{font-size:10px;padding:2px 9px;border-radius:99px;font-weight:600}
+.bdg-b{background:#E6F1FB;color:#185FA5}
+.bdg-a{background:#FAEEDA;color:#854F0B}
+.bdg-g{background:#EAF3DE;color:#3B6D11}
+table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+th{font-size:10px;font-weight:700;color:var(--text2);text-align:left;padding:5px 6px;border-bottom:1px solid var(--border);white-space:nowrap}
+th.r,td.r{text-align:right}
+td{padding:6px 6px;border-bottom:1px solid var(--border);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:none}
+.ttl-row td{font-weight:700;background:var(--bg2)}
+.del-btn{background:none;border:none;cursor:pointer;color:var(--text3);padding:3px 5px;border-radius:4px;font-size:13px}
+.del-btn:hover{color:#E24B4A;background:#FCEBEB}
+.qty-inp{width:68px;font-size:12px;padding:3px 6px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg);color:var(--text);text-align:right}
+.qty-inp:focus{outline:none;border-color:#378ADD}
+.sell-row td{color:var(--dn)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+@media(max-width:600px){.two-col{grid-template-columns:1fr}}
+.avg-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px}
+.avg-row:last-child{border-bottom:none}
+.add-frm{display:grid;gap:5px;align-items:end;margin-top:11px;padding-top:11px;border-top:1px solid var(--border)}
+.add-frm label{font-size:10px;color:var(--text2);display:block;margin-bottom:3px;font-weight:600}
+.add-frm input,.add-frm select{width:100%;font-size:12px;padding:5px 7px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg);color:var(--text)}
+.add-frm input:focus,.add-frm select:focus{outline:none;border-color:#378ADD}
+.add-frm button{padding:6px 10px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg2);color:var(--text);cursor:pointer;font-size:14px}
+.add-frm button:hover{background:var(--bg3)}
+.grand-wrap{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem 1.5rem}
+.grand-row{display:flex;align-items:baseline;justify-content:flex-end;gap:10px}
+.grand-lbl{font-size:13px;color:var(--text2)}
+.grand-val{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}
+.grand-sub{font-size:12px;text-align:right;margin-top:4px;color:var(--text3)}
+.pb{font-size:10px;padding:2px 7px;border-radius:99px;margin-left:4px;font-weight:600}
+.pb-up{background:#EAF3DE;color:#3B6D11}.pb-dn{background:#FCEBEB;color:#A32D2D}
+.inp-err{border-color:#E24B4A!important}
+.section-add{background:var(--bg2);border:1px dashed var(--border2);border-radius:var(--radius-lg);padding:1rem 1.25rem;margin-bottom:1rem}
+.section-add-ttl{font-size:12px;font-weight:700;color:var(--text2);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.hint{font-size:10px;color:var(--text3);margin-top:5px}
+.coin-dot{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:50%;font-size:9px;font-weight:700;margin-right:5px;flex-shrink:0;background:var(--bg2);color:var(--text2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="logo"><i class="ti ti-chart-candle"></i>Canlı Portföy</div>
+    <div class="controls">
+      <div class="status"><span class="dot load" id="sDot"></span><span id="sTxt">Yükleniyor...</span></div>
+      <button class="icon-btn" onclick="loadAll()"><i class="ti ti-refresh"></i>Yenile</button>
+      <button class="icon-btn" onclick="resetState()" style="color:#E24B4A" title="Tüm verileri sıfırla"><i class="ti ti-trash"></i></button>
+    </div>
+  </div>
+
+  <div class="info-bar">
+    <span id="lastUpdate">—</span>
+    <span class="info-tag" id="tag-binance">Binance</span>
+    <span class="info-tag" id="tag-exrate">ExchangeRate-API</span>
+    <span class="info-tag" id="tag-gold">Altın: yükleniyor...</span>
+  </div>
+
+  <!-- Metrik kartları — dinamik -->
+  <div class="metrics" id="metricsGrid"></div>
+
+  <!-- ==================== EMTİA PORTFÖYÜ ==================== -->
+  <div class="card">
+    <div class="card-hdr">
+      <span class="card-ttl"><i class="ti ti-coins"></i>Emtia portföyü</span>
+      <span class="bdg bdg-a" id="goldBadge">Serbest piyasa</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table id="emtia-table">
+        <thead>
+          <tr>
+            <th style="width:20%">Varlık</th>
+            <th class="r" style="width:16%">Alış (TL)</th>
+            <th class="r" style="width:16%">Satış (TL)</th>
+            <th class="r" style="width:12%">Değişim</th>
+            <th class="r" style="width:18%">Adet</th>
+            <th class="r" style="width:14%">Toplam (TL)</th>
+            <th style="width:4%"></th>
+          </tr>
+        </thead>
+        <tbody id="emtia-body"></tbody>
+        <tfoot>
+          <tr class="ttl-row">
+            <td colspan="5">Emtia toplam</td>
+            <td class="r" id="emtia-grand">—</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <p style="font-size:10px;color:var(--text3);margin-top:8px" id="goldNote">Veri kaynağı yükleniyor...</p>
+  </div>
+
+  <!-- Emtia ekleme -->
+  <div class="section-add">
+    <div class="section-add-ttl"><i class="ti ti-plus"></i>Emtia ekle</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;align-items:end">
+      <div>
+        <label style="font-size:10px;color:var(--text2);display:block;margin-bottom:3px;font-weight:600">Tür</label>
+        <select id="emtia-type" onchange="onEmtiaTypeChange()" style="width:100%;font-size:12px;padding:5px 7px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg);color:var(--text)">
+          <option value="gram-altin">Gram Altın</option>
+          <option value="ceyrek-altin">Çeyrek Altın</option>
+          <option value="yarim-altin">Yarım Altın</option>
+          <option value="tam-altin">Tam Altın</option>
+          <option value="usd">Dolar (USD)</option>
+          <option value="eur">Euro (EUR)</option>
+          <option value="gbp">Sterlin (GBP)</option>
+          <option value="xau">Altın Ons (XAU)</option>
+          <option value="gumus">Gümüş (gram)</option>
+          <option value="custom">Manuel fiyat gir...</option>
+        </select>
+      </div>
+      <div id="emtia-custom-wrap" style="display:none">
+        <label style="font-size:10px;color:var(--text2);display:block;margin-bottom:3px;font-weight:600">Özel isim</label>
+        <input type="text" id="emtia-custom-name" placeholder="ör: Sterlin" style="width:100%;font-size:12px;padding:5px 7px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg);color:var(--text)">
+      </div>
+      <div>
+        <label style="font-size:10px;color:var(--text2);display:block;margin-bottom:3px;font-weight:600">Adet / Miktar</label>
+        <input type="number" id="emtia-qty" placeholder="örn: 100" min="0" style="width:100%;font-size:12px;padding:5px 7px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg);color:var(--text)">
+      </div>
+      <div id="emtia-manual-price-wrap" style="display:none">
+        <label style="font-size:10px;color:var(--text2);display:block;margin-bottom:3px;font-weight:600">Birim fiyat (TL)</label>
+        <input type="number" id="emtia-manual-price" placeholder="ör: 52.00" min="0" style="width:100%;font-size:12px;padding:5px 7px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg);color:var(--text)">
+      </div>
+      <button onclick="addEmtia()" style="padding:7px 13px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg);color:var(--text);cursor:pointer;font-size:14px">
+        <i class="ti ti-plus"></i>
+      </button>
+    </div>
+    <p class="hint">Altın türleri için fiyat Truncgil serbest piyasadan; dövizler için ExchangeRate-API'den otomatik çekilir.</p>
+  </div>
+
+  <!-- ==================== KRİPTO PORTFÖYÜ ==================== -->
+  <div class="card">
+    <div class="card-hdr">
+      <span class="card-ttl"><i class="ti ti-currency-bitcoin"></i>Kripto portföyü</span>
+      <span class="bdg bdg-b">Binance canlı</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:18%">Coin</th>
+            <th class="r" style="width:11%">$ fiyat</th>
+            <th class="r" style="width:12%">TL karş.</th>
+            <th class="r" style="width:9%">24s %</th>
+            <th class="r" style="width:14%">Net adet</th>
+            <th class="r" style="width:13%">Toplam (TL)</th>
+            <th class="r" style="width:11%">K/Z</th>
+            <th style="width:12%"></th>
+          </tr>
+        </thead>
+        <tbody id="kripto-summary-body"></tbody>
+        <tfoot>
+          <tr class="ttl-row">
+            <td colspan="7">Kripto TL toplam</td>
+            <td class="r" id="k-grand">—</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- Kripto ekleme -->
+  <div class="section-add">
+    <div class="section-add-ttl"><i class="ti ti-plus"></i>Kripto coin ekle</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:6px;align-items:end">
+      <div>
+        <label style="font-size:10px;color:var(--text2);display:block;margin-bottom:3px;font-weight:600">Binance sembolü (USDT çifti)</label>
+        <input type="text" id="new-coin-sym" placeholder="ör: BTCUSDT, SOLUSDT, AVAXUSDT" style="width:100%;font-size:12px;padding:5px 7px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg);color:var(--text);text-transform:uppercase">
+      </div>
+      <div>
+        <label style="font-size:10px;color:var(--text2);display:block;margin-bottom:3px;font-weight:600">Görünen isim (isteğe bağlı)</label>
+        <input type="text" id="new-coin-label" placeholder="ör: Bitcoin" style="width:100%;font-size:12px;padding:5px 7px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg);color:var(--text)">
+      </div>
+      <button onclick="addCoin()" style="padding:7px 13px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg);color:var(--text);cursor:pointer;font-size:14px">
+        <i class="ti ti-plus"></i>
+      </button>
+    </div>
+    <p class="hint">Binance'de işlem gören her coin eklenebilir. Sembol = coin kısaltması + USDT (ör: BTC → BTCUSDT)</p>
+    <p style="font-size:10px;color:var(--dn);margin-top:4px" id="coin-add-err"></p>
+  </div>
+
+  <!-- İşlem geçmişleri -->
+  <div id="trade-histories"></div>
+
+  <div class="grand-wrap">
+    <div class="grand-row">
+      <span class="grand-lbl">Genel portföy toplamı</span>
+      <span class="grand-val" id="grand">—</span>
+    </div>
+    <div class="grand-sub" id="grand-usd">—</div>
+  </div>
+
+</div>
+<script>
+
+// ===================== KAYIT / YÜKLEME =====================
+const STORAGE_KEY = 'portfolyo_v1';
+
+function saveState(){
+  try{
+    const data = {
+      trades: trades,
+      emtiaRows: emtiaRows,
+      coins: coins.map(c => ({sym:c.sym, label:c.label, trades:c.trades})),
+      emtiaIdCounter: emtiaIdCounter
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }catch(e){ console.warn('Kayıt hatası:', e); }
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return false;
+    const data = JSON.parse(raw);
+    if(data.trades)         trades = data.trades;
+    if(data.emtiaRows)      emtiaRows = data.emtiaRows;
+    if(data.emtiaIdCounter) emtiaIdCounter = data.emtiaIdCounter;
+    if(data.coins){
+      coins = data.coins;
+    }
+    console.log('Kayıtlı veri yüklendi ✓');
+    return true;
+  }catch(e){
+    console.warn('Yükleme hatası:', e);
+    return false;
+  }
+}
+
+function resetState(){
+  if(!confirm('Tüm işlem geçmişi ve eklenen varlıklar sıfırlanacak. Emin misiniz?')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+const fmt  = (n,d=2) => isNaN(n)||n===null?'—':n.toLocaleString('tr-TR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtP = n => n>=1?fmt(n,2):fmt(n,4);
+const chgSpan = v => {const n=parseFloat(v);if(isNaN(n))return'—';return`<span class="${n>=0?'up':'dn'}">${n>=0?'+':''}${n.toFixed(2)}%</span>`;};
+const pb = (price,avg) => {if(!price||!avg)return'';const p=(price-avg)/avg*100;return` <span class="pb ${p>=0?'pb-up':'pb-dn'}">${p>=0?'+':''}${p.toFixed(1)}%</span>`;};
+
+function parseTR(s){
+  if(!s)return null;
+  const c=String(s).replace(/[^\d,\.]/g,'');
+  if(c.includes(',')&&c.includes('.'))return parseFloat(c.replace(/\./g,'').replace(',','.'));
+  if(c.includes(','))return parseFloat(c.replace(',','.'));
+  return parseFloat(c);
+}
+
+// ===================== STATE =====================
+let S = {
+  usd:null, eur:null, gbp:null,
+  goldData:{},   // truncgil raw
+  coins:{},      // symbol -> {price, chg}
+};
+
+// Emtia satırları
+let emtiaRows = [
+  {id:'e1', type:'gram-altin',  label:'Gram altın',   qty:130, manualPrice:null},
+  {id:'e2', type:'ceyrek-altin',label:'Çeyrek altın', qty:50,  manualPrice:null},
+];
+
+// Kripto coinler
+let coins = [
+  {sym:'RENDERUSDT', label:'RENDER', trades:[
+    {tl:836000,qty:3000,type:'buy'},{tl:800000,qty:3000,type:'buy'},
+    {tl:180000,qty:660,type:'buy'},{tl:200000,qty:1477,type:'buy'},
+    {tl:200000,qty:1851,type:'buy'},{tl:400000,qty:4878,type:'buy'},
+    {tl:420000,qty:5316,type:'buy'},{tl:183554,qty:1969,type:'sell'},
+    {tl:184405,qty:2156,type:'buy'},{tl:516880,qty:4970,type:'sell'},
+    {tl:1100000,qty:11518,type:'buy'}
+  ]},
+  {sym:'IOUSDT', label:'IO', trades:[
+    {tl:244000,qty:3000,type:'buy'},{tl:465000,qty:13200,type:'buy'},
+    {tl:100000,qty:11947,type:'buy'},{tl:516000,qty:68627,type:'buy'}
+  ]},
+];
+
+let emtiaIdCounter = 10;
+
+// ===================== EMTİA HELPERS =====================
+function getEmtiaPrice(row) {
+  if(row.type==='custom') return {buy:row.manualPrice||0, sell:row.manualPrice||0, chg:null};
+  if(row.type==='usd')    return {buy:S.usd, sell:S.usd, chg:null};
+  if(row.type==='eur')    return {buy:S.eur, sell:S.eur, chg:null};
+  if(row.type==='gbp')    return {buy:S.gbp, sell:S.gbp, chg:null};
+  if(row.type==='xau'){
+    const p = S.coins['XAUUSDT'];
+    if(!p||!S.usd)return{buy:null,sell:null,chg:null};
+    const mid=p.price/31.1035*S.usd;
+    return{buy:mid*0.9925,sell:mid*1.0075,chg:p.chg};
+  }
+  if(row.type==='gumus'){
+    const g=S.goldData['gumus']||S.goldData['gram-gumus']||S.goldData['Gümüş'];
+    if(!g)return{buy:null,sell:null,chg:null};
+    return{buy:parseTR(g['Alış']||g['alis']),sell:parseTR(g['Satış']||g['satis']),chg:g['Değişim']||g['degisim']};
+  }
+  // Altın türleri
+  const keyMap = {
+    'gram-altin':   ['gram-has-altin','Gram Altın','gram-altin'],
+    'ceyrek-altin': ['ceyrek-altin','Çeyrek Altın'],
+    'yarim-altin':  ['yarim-altin','Yarım Altın'],
+    'tam-altin':    ['tam-altin','Tam Altın'],
+  };
+  const keys = keyMap[row.type]||[];
+  let gd = null;
+  for(const k of keys){ if(S.goldData[k]){gd=S.goldData[k];break;} }
+  // fuzzy fallback
+  if(!gd){
+    const lbl=row.type.replace(/-/g,' ');
+    const found=Object.keys(S.goldData).find(k=>k.toLowerCase().replace(/-/g,' ').includes(lbl));
+    if(found)gd=S.goldData[found];
+  }
+  if(!gd)return{buy:null,sell:null,chg:null};
+  return{buy:parseTR(gd['Alış']||gd['alis']),sell:parseTR(gd['Satış']||gd['satis']),chg:gd['Değişim']||gd['degisim']};
+}
+
+function onEmtiaTypeChange(){
+  const t=document.getElementById('emtia-type').value;
+  document.getElementById('emtia-custom-wrap').style.display=t==='custom'?'block':'none';
+  document.getElementById('emtia-manual-price-wrap').style.display=t==='custom'?'block':'none';
+}
+
+function addEmtia(){
+  const type=document.getElementById('emtia-type').value;
+  const qty=parseFloat(document.getElementById('emtia-qty').value);
+  if(!qty||qty<=0){document.getElementById('emtia-qty').classList.add('inp-err');setTimeout(()=>document.getElementById('emtia-qty').classList.remove('inp-err'),1500);return;}
+  let label='';
+  const labelMap={'gram-altin':'Gram altın','ceyrek-altin':'Çeyrek altın','yarim-altin':'Yarım altın','tam-altin':'Tam altın','usd':'Dolar (USD)','eur':'Euro (EUR)','gbp':'Sterlin (GBP)','xau':'Altın Ons','gumus':'Gümüş (gr)'};
+  label=labelMap[type]||document.getElementById('emtia-custom-name').value||type;
+  let manualPrice=null;
+  if(type==='custom'){
+    manualPrice=parseFloat(document.getElementById('emtia-manual-price').value)||0;
+    if(!document.getElementById('emtia-custom-name').value.trim()){alert('Özel isim girin');return;}
+  }
+  emtiaIdCounter++;
+  emtiaRows.push({id:'e'+emtiaIdCounter, type, label, qty, manualPrice});
+  document.getElementById('emtia-qty').value='';
+  document.getElementById('emtia-custom-name').value='';
+  document.getElementById('emtia-manual-price').value='';
+  renderEmtia();
+  recalc();
+  saveState();
+}
+
+function removeEmtia(id){
+  emtiaRows=emtiaRows.filter(r=>r.id!==id);
+  renderEmtia();recalc();saveState();
+}
+
+function renderEmtia(){
+  const tbody=document.getElementById('emtia-body');
+  tbody.innerHTML='';
+  emtiaRows.forEach(row=>{
+    const p=getEmtiaPrice(row);
+    const buyTxt = p.buy  ? fmt(p.buy,2)+' ₺'  : '—';
+    const sellTxt= p.sell ? fmt(p.sell,2)+' ₺' : '—';
+    const chgTxt = p.chg  ? chgSpan(p.chg)      : '—';
+    const total  = p.buy  ? p.buy*row.qty : null;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><i class="ti ti-diamond" style="color:#B7791F;margin-right:4px;font-size:11px"></i>${row.label}</td>
+      <td class="r">${buyTxt}</td>
+      <td class="r">${sellTxt}</td>
+      <td class="r">${chgTxt}</td>
+      <td class="r"><input class="qty-inp" type="number" value="${row.qty}" min="0" oninput="updateEmtiaQty('${row.id}',this.value)"></td>
+      <td class="r">${total?fmt(total,0):'—'}</td>
+      <td><button class="del-btn" onclick="removeEmtia('${row.id}')"><i class="ti ti-trash"></i></button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function updateEmtiaQty(id,val){
+  const row=emtiaRows.find(r=>r.id===id);
+  if(row){row.qty=parseFloat(val)||0;recalc();saveState();}
+}
+
+// ===================== KRİPTO HELPERS =====================
+function calcStats(coin){
+  let bTl=0,bQty=0,net=0,cost=0;
+  coin.trades.forEach(t=>{
+    if(t.type==='buy'){bTl+=t.tl;bQty+=t.qty;net+=t.qty;cost+=t.tl;}
+    else{net-=t.qty;cost-=t.tl;}
+  });
+  const avgTl=bQty>0?bTl/bQty:0;
+  const avgDl=S.usd?avgTl/S.usd:0;
+  return{cost,net,avgTl,avgDl};
+}
+
+function renderCryptoSummary(){
+  const tbody=document.getElementById('kripto-summary-body');
+  tbody.innerHTML='';
+  coins.forEach(coin=>{
+    const p=S.coins[coin.sym];
+    const st=calcStats(coin);
+    const qty=Math.abs(st.net);
+    const totalTl=p&&S.usd?p.price*S.usd*qty:null;
+    const costTl=st.avgDl&&S.usd?st.avgDl*S.usd*qty:0;
+    const pct=costTl>0&&totalTl?(totalTl-costTl)/costTl*100:null;
+    const initials=coin.label.substring(0,2).toUpperCase();
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><span class="coin-dot">${initials}</span>${coin.label}</td>
+      <td class="r">${p?'$'+fmtP(p.price):'—'}</td>
+      <td class="r">${p&&S.usd?fmt(p.price*S.usd,p.price*S.usd<1?4:2)+' ₺':'—'}</td>
+      <td class="r">${p?chgSpan(p.chg):'—'}</td>
+      <td class="r">${fmt(qty,0)}</td>
+      <td class="r">${totalTl?fmt(totalTl,0):'—'}</td>
+      <td class="r">${pct!==null?`<span class="${pct>=0?'up':'dn'}">${pct>=0?'+':''}${pct.toFixed(1)}%</span>`:'—'}</td>
+      <td><button class="del-btn" onclick="removeCoin('${coin.sym}')" title="Coinı kaldır"><i class="ti ti-x"></i></button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderTradeHistories(){
+  const container=document.getElementById('trade-histories');
+  container.innerHTML='';
+  if(coins.length===0)return;
+
+  const grid=document.createElement('div');
+  grid.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;margin-bottom:1rem';
+
+  coins.forEach(coin=>{
+    const st=calcStats(coin);
+    const p=S.coins[coin.sym];
+    const initials=coin.label.substring(0,2).toUpperCase();
+    const card=document.createElement('div');
+    card.className='card';card.style.marginBottom='0';
+
+    let rows='';
+    coin.trades.forEach((t,i)=>{
+      const unit=t.qty>0?t.tl/t.qty:0;
+      const dl=S.usd?unit/S.usd:0;
+      const s=t.type==='sell'?'-':'';
+      const cls=t.type==='sell'?'class="sell-row"':'';
+      rows+=`<tr ${cls}><td class="r">${s}${fmt(t.tl,0)}</td><td class="r">${s}${fmt(t.qty,0)}</td><td class="r">${fmt(unit,2)}</td><td class="r">${dl>0?fmt(dl,3):'—'}</td><td><button class="del-btn" onclick="deleteTrade('${coin.sym}',${i})"><i class="ti ti-trash"></i></button></td></tr>`;
+    });
+
+    card.innerHTML=`
+      <div class="card-hdr">
+        <span class="card-ttl"><span class="coin-dot" style="margin-right:5px">${initials}</span>${coin.label} işlemler</span>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr>
+            <th class="r" style="width:28%">TL tutar</th>
+            <th class="r" style="width:22%">Adet</th>
+            <th class="r" style="width:22%">TL bir.</th>
+            <th class="r" style="width:20%">DL bir.</th>
+            <th style="width:8%"></th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+          <tfoot><tr class="ttl-row">
+            <td class="r">${fmt(st.cost,0)}</td>
+            <td class="r">${fmt(Math.abs(st.net),0)}</td>
+            <td class="r">—</td><td class="r">—</td><td></td>
+          </tr></tfoot>
+        </table>
+      </div>
+      <div style="margin-top:9px">
+        <div class="avg-row"><span style="color:var(--text2)">TL ort.</span><span style="font-weight:700">${fmt(st.avgTl,2)} ₺</span></div>
+        <div class="avg-row"><span style="color:var(--text2)">DL ort.</span><span style="font-weight:700">$${fmtP(st.avgDl)}${pb(p?.price,st.avgDl)}</span></div>
+      </div>
+      <div class="add-frm" style="grid-template-columns:1fr 1fr 100px auto">
+        <div><label>TL tutar</label><input type="number" id="inp-tl-${coin.sym}" placeholder="200000"></div>
+        <div><label>Adet</label><input type="number" id="inp-qty-${coin.sym}" placeholder="1000"></div>
+        <div><label>Tür</label><select id="inp-type-${coin.sym}"><option value="buy">Alım</option><option value="sell">Satım</option></select></div>
+        <button onclick="addTrade('${coin.sym}')"><i class="ti ti-plus"></i></button>
+      </div>`;
+    grid.appendChild(card);
+  });
+  container.appendChild(grid);
+}
+
+function addTrade(sym){
+  const coin=coins.find(c=>c.sym===sym);if(!coin)return;
+  const tlEl=document.getElementById('inp-tl-'+sym);
+  const qtEl=document.getElementById('inp-qty-'+sym);
+  const tp=document.getElementById('inp-type-'+sym).value;
+  const tl=parseFloat(tlEl.value),qt=parseFloat(qtEl.value);
+  if(!tl||!qt||tl<=0||qt<=0){
+    [tlEl,qtEl].forEach(e=>{e.classList.add('inp-err');setTimeout(()=>e.classList.remove('inp-err'),1500)});return;
+  }
+  coin.trades.push({tl,qty:qt,type:tp});
+  tlEl.value='';qtEl.value='';
+  renderTradeHistories();renderCryptoSummary();recalc();saveState();
+}
+
+function deleteTrade(sym,i){
+  const coin=coins.find(c=>c.sym===sym);if(!coin)return;
+  coin.trades.splice(i,1);
+  renderTradeHistories();renderCryptoSummary();recalc();saveState();
+}
+
+function removeCoin(sym){
+  if(!confirm(sym+' coinini ve tüm işlem geçmişini silmek istiyor musunuz?'))return;
+  coins=coins.filter(c=>c.sym!==sym);
+  delete S.coins[sym];
+  renderCryptoSummary();renderTradeHistories();recalc();saveState();
+}
+
+async function addCoin(){
+  const errEl=document.getElementById('coin-add-err');
+  errEl.textContent='';
+  let sym=document.getElementById('new-coin-sym').value.trim().toUpperCase();
+  const labelInp=document.getElementById('new-coin-label').value.trim();
+  if(!sym){errEl.textContent='Sembol girin (ör: BTCUSDT)';return;}
+  if(!sym.endsWith('USDT'))sym+='USDT';
+  if(coins.find(c=>c.sym===sym)){errEl.textContent=sym+' zaten listede';return;}
+
+  errEl.textContent='Kontrol ediliyor...';
+  try{
+    const r=await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${sym}`);
+    if(!r.ok)throw new Error('Sembol bulunamadı');
+    const d=await r.json();
+    S.coins[sym]={price:parseFloat(d.lastPrice),chg:parseFloat(d.priceChangePercent)};
+    const label=labelInp||sym.replace('USDT','');
+    coins.push({sym,label,trades:[]});
+    document.getElementById('new-coin-sym').value='';
+    document.getElementById('new-coin-label').value='';
+    errEl.textContent='';
+    renderCryptoSummary();renderTradeHistories();recalc();saveState();
+  }catch(e){
+    errEl.textContent='Hata: '+sym+' Binance\'de bulunamadı. Sembolü kontrol edin.';
+  }
+}
+
+// ===================== METRİKLER =====================
+function renderMetrics(){
+  const grid=document.getElementById('metricsGrid');
+  grid.innerHTML='';
+  const add=(lbl,val,sub='')=>{
+    grid.innerHTML+=`<div class="m"><div class="m-lbl">${lbl}</div><div class="m-val">${val}</div>${sub?`<div class="m-sub">${sub}</div>`:''}</div>`;
+  };
+  add('USD / TRY', S.usd?fmt(S.usd,2):'—');
+  add('EUR / TRY', S.eur?fmt(S.eur,2):'—');
+  add('GBP / TRY', S.gbp?fmt(S.gbp,2):'—');
+  coins.forEach(c=>{
+    const p=S.coins[c.sym];
+    add(c.label, p?'$'+fmtP(p.price):'—', p?chgSpan(p.chg):'');
+  });
+  // Altın metrikleri
+  ['gram-altin','ceyrek-altin'].forEach(type=>{
+    const lbl=type==='gram-altin'?'Gram Altın':'Çeyrek Altın';
+    const keys=type==='gram-altin'?['gram-has-altin','Gram Altın','gram-altin']:['ceyrek-altin','Çeyrek Altın'];
+    let gd=null;
+    for(const k of keys)if(S.goldData[k]){gd=S.goldData[k];break;}
+    const sell=gd?parseTR(gd['Satış']||gd['satis']):null;
+    const chg=gd?gd['Değişim']||gd['degisim']:null;
+    add(lbl, sell?fmt(sell,0)+' ₺':'—', chg?chgSpan(chg):'');
+  });
+}
+
+// ===================== RECALC =====================
+function recalc(){
+  if(!S.usd)return;
+
+  // Emtia
+  let emtiaTotal=0;
+  emtiaRows.forEach(row=>{
+    const p=getEmtiaPrice(row);
+    const tot=p.buy?p.buy*row.qty:0;
+    emtiaTotal+=tot;
+  });
+  document.getElementById('emtia-grand').textContent=fmt(emtiaTotal,0);
+
+  // Kripto
+  let kTot=0;
+  coins.forEach(coin=>{
+    const p=S.coins[coin.sym];if(!p)return;
+    const st=calcStats(coin);
+    kTot+=p.price*S.usd*Math.abs(st.net);
+  });
+  document.getElementById('k-grand').textContent=fmt(kTot,0);
+
+  const total=emtiaTotal+kTot;
+  document.getElementById('grand').textContent=fmt(total,0)+' ₺';
+  document.getElementById('grand-usd').textContent='≈ $'+fmt(total/S.usd,0);
+}
+
+// ===================== STATUS =====================
+function setStatus(t,m){
+  document.getElementById('sDot').className='dot '+(t==='ok'?'':t);
+  document.getElementById('sTxt').textContent=m;
+}
+function setTag(id,text,state){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.textContent=text;el.className='info-tag '+(state||'');
+}
+
+// ===================== LOAD =====================
+async function loadAll(){
+  setStatus('load','Güncelleniyor...');
+
+  // 1+3) AltinAPI — döviz + altın tek istekte
+  let goldOk2=false;
+  try{
+    const AK3 = 'hapi_a1ce0b0bdd004e04a0a737e43dae0556';
+    // CORS proxy ile çek — normal Chrome'da da çalışır
+    // API key URL parametresi olarak gönder — CORS sorununu aşar
+    const API_URL = `https://altinapi.com/api/v1/prices?api_key=${AK3}`;
+    let allP;
+    try {
+      const r = await fetch(API_URL);
+      if(!r.ok) throw new Error('HTTP ' + r.status);
+      allP = await r.json();
+    } catch(e1) {
+      // Yedek: corsproxy.io üzerinden dene
+      const r2 = await fetch('https://corsproxy.io/?' + encodeURIComponent(API_URL));
+      if(!r2.ok) throw new Error('Proxy ' + r2.status);
+      allP = await r2.json();
+    }
+    const pm = {};
+    (allP.data||allP).forEach(item=>{ if(item.symbol) pm[item.symbol.toUpperCase()]=item; });
+
+    const usdI=pm['USDTRY'], eurI=pm['EURTRY'], gbpI=pm['GBPTRY'];
+    const grmI=pm['ALTIN'], cyrI=pm['CEYREK_YENI']||pm['CEYREK'];
+    const yarI=pm['YARIM_YENI']||pm['YARIM'], tamI=pm['TAM_YENI']||pm['TAM']||pm['CUMHURIYET'];
+    const gmsI=pm['GUMUS']||pm['SILVER'];
+
+    if(usdI){ S.usd=usdI.ask||usdI.bid; setTag('tag-exrate','AltinAPI Döviz ✓','ok'); }
+    if(eurI){ S.eur=eurI.ask||eurI.bid; }
+    if(gbpI){ S.gbp=gbpI.ask||gbpI.bid; }
+
+    S.goldData={};
+    if(grmI) S.goldData['gram-has-altin']={'Alış':grmI.bid,'Satış':grmI.ask,'Değişim':'0'};
+    if(cyrI) S.goldData['ceyrek-altin']  ={'Alış':cyrI.bid,'Satış':cyrI.ask,'Değişim':'0'};
+    if(yarI) S.goldData['yarim-altin']   ={'Alış':yarI.bid,'Satış':yarI.ask,'Değişim':'0'};
+    if(tamI) S.goldData['tam-altin']     ={'Alış':tamI.bid,'Satış':tamI.ask,'Değişim':'0'};
+    if(gmsI) S.goldData['gumus']         ={'Alış':gmsI.bid,'Satış':gmsI.ask,'Değişim':'0'};
+
+    setTag('tag-gold','AltinAPI ✓','ok');
+    if(document.getElementById('goldNote')) document.getElementById('goldNote').textContent='Kaynak: altinapi.com — gerçek serbest piyasa fiyatları';
+    if(document.getElementById('goldBadge')) document.getElementById('goldBadge').textContent='AltinAPI · Harem Altın';
+    goldOk2=true;
+  }catch(e){
+    setTag('tag-exrate','AltinAPI ✗','err');
+    setTag('tag-gold','Altın: Binance yedek','');
+    if(document.getElementById('goldNote')) document.getElementById('goldNote').textContent='⚠ AltinAPI erişilemedi: '+e.message;
+  }
+
+  // 2) Binance — tüm coinler + XAUUSDT yedek
+  const syms=[...new Set([...coins.map(c=>c.sym),'XAUUSDT'])];
+  try{
+    await Promise.all(syms.map(async sym=>{
+      try{
+        const d=await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${sym}`).then(r=>r.json());
+        S.coins[sym]={price:parseFloat(d.lastPrice),chg:parseFloat(d.priceChangePercent)};
+      }catch(e){}
+    }));
+    setTag('tag-binance','Binance ✓','ok');
+  }catch(e){setTag('tag-binance','Binance ✗','err');}
+
+renderMetrics();
+  renderEmtia();
+  renderCryptoSummary();
+  renderTradeHistories();
+  recalc();
+
+  document.getElementById('lastUpdate').textContent='Son güncelleme: '+new Date().toLocaleTimeString('tr-TR')+' — 60 sn otomatik';
+  setStatus('ok','Tüm kaynaklar canlı');
+}
+
+// İlk açılışta kayıtlı veriyi yükle
+loadState();
+loadAll();
+setInterval(loadAll,60000);
+</script>
+</body>
+</html>
